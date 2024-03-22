@@ -1,8 +1,8 @@
 #include <WiFi.h>
 
 // WiFi information
-const char* ssid = "";
-const char* password = "";
+char ssid[] = "";
+char password[] = "";
 
 // Setting webserver port number
 WiFiServer server(80);
@@ -11,19 +11,11 @@ WiFiServer server(80);
 String header;
 
 // Motor A
-int motor1Pin1 = 27;
-int motor1Pin2 = 26;
-int enable1Pin = 14;
+int motor1Pin1 = 16;
+int motor1Pin2 = 17;
 // Motor B
-int motor2Pin1 = ;
-int motor2Pin2 = ;
-int enable2Pin = ;
-
-// Setting PWM properties
-const int freq = 30000;
-const int pwmChannel = 0;
-const int resolution = 8;
-int dutyCycle = 200;
+int motor2Pin1 = 18;
+int motor2Pin2 = 19;
 
 // Current time
 unsigned long currentTime = millis();
@@ -36,23 +28,14 @@ void setup(){
   // Set the pins as outputs
   pinMode(motor1Pin1, OUTPUT);
   pinMode(motor1Pin2, OUTPUT);
-  pinMode(enable1Pin, OUTPUT);
   pinMode(motor2Pin1, OUTPUT);
   pinMode(motor2Pin2, OUTPUT);
-  pinMode(enable2Pin, OUTPUT);
 
   // Set outputs to LOW
   digitalWrite(motor1Pin1, LOW);
   digitalWrite(motor1Pin2, LOW);
   digitalWrite(motor2Pin1, LOW);
   digitalWrite(motor2Pin2, LOW);
-
-  // configure PWM functionalitites
-  ledcSetup(pwmChannel, freq, resolution);
-
-  // attach the channel to the GPIO to be controlled
-  ledcAttachPin(enable1Pin, pwmChannel);
-  ledcAttachPin(enable2Pin, pwmChannel);
   
   // Start
   Serial.begin(115200);
@@ -61,7 +44,6 @@ void setup(){
   // Wifi connection
   Serial.print("Connecting to: ");
   Serial.println(ssid);
-  WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   while(WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
@@ -105,68 +87,50 @@ void loop(){
             client.println();
             
             // Command from client
-            if(header.indexOf("GET /On") >= 0){
-              Serial.println("Motor On");
-              digitalWrite(motor1Pin1, HIGH);
-              digitalWrite(motor1Pin2, LOW);
-              digitalWrite(motor2Pin1, HIGH);
-              digitalWrite(motor2Pin2, LOW);
-            }
-            else if(header.indexOf("GET /Off") >= 0){
-              Serial.println("Motor Off");
+            if(header.indexOf("GET /S") >= 0){
+              Serial.println("Motor Stop");
               digitalWrite(motor1Pin1, LOW);
               digitalWrite(motor1Pin2, LOW);
               digitalWrite(motor2Pin1, LOW);
               digitalWrite(motor2Pin2, LOW);
             }
-            else if(header.indexOf("GET /Forward") >= 0){
+            else if(header.indexOf("GET /F") >= 0){
               Serial.println("Moving Forward");
               digitalWrite(motor1Pin1, HIGH);
               digitalWrite(motor1Pin2, LOW);
               digitalWrite(motor2Pin1, HIGH);
               digitalWrite(motor2Pin2, LOW);
             }
-            else if(header.indexOf("GET /Backwards") >= 0){
+            else if(header.indexOf("GET /B") >= 0){
               Serial.println("Moving Backwards");
               digitalWrite(motor1Pin1, LOW);
               digitalWrite(motor1Pin2, HIGH);
               digitalWrite(motor2Pin1, LOW);
               digitalWrite(motor2Pin2, HIGH);
             }
-            else if(header.indexOf("GET /Fast") >= 0){
-              Serial.println("Speed up");
-              while (dutyCycle <= 255){
-                ledcWrite(pwmChannel, dutyCycle);   
-                Serial.print("Forward with duty cycle: ");
-                Serial.println(dutyCycle);
-                dutyCycle = dutyCycle + 5;
-                delay(500);
-              }
+            else if(header.indexOf("GET /L") >= 0){
+              Serial.println("Turn Left");
             }
-            else if(header.indexOf("GET /Slow") >= 0){
-              Serial.println("Slow down");
-              while (dutyCycle >= 200){
-                ledcWrite(pwmChannel, dutyCycle);   
-                Serial.print("Forward with duty cycle: ");
-                Serial.println(dutyCycle);
-                dutyCycle = dutyCycle - 5;
-                delay(500);
-              }
+            else if(header.indexOf("GET /R") >= 0){
+              Serial.println("Turn Right");
             }
             
             // Website design
-            client.println("<!DOCTYPE html><html lang=\"en\">")
-            client.println("<head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">")
-            client.println("<link rel=\"icon\" href=\"data:,\"><title>Controller</title>")
-            client.println("<style>h1{text-align: center;}")
-            client.println(".buttondiv{display: grid;grid-template-columns: repeat(3,1fr);gap: 5px;}")
-            client.println(".button{background-color: black;border: none;color: white;padding: 16px 40px;text-decoration: none;font-size: 30px;cursor: pointer;width: 90%;}")
-            client.println(".switch-on{background-color: green;}")
-            client.println(".switch-off{background-color: red;}")
-            client.println(".speed{background-color: blue;}</style></head>")
-            client.println("<body><h1>Car Controller</h1>")
-            client.println("")
-            client.println("</body></html>")
+            client.println("<!DOCTYPE html><html lang=\"en\">");
+            client.println("<head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">");
+            client.println("<link rel=\"icon\" href=\"data:,\"><title>Controller</title>");
+            client.println("<style>h1{text-align: center;}");
+            client.println(".buttondiv{display: grid;grid-template-columns: repeat(3,1fr);gap: 5px;}");
+            client.println(".button{background-color: black;border: none;color: white;padding: 16px 40px;text-decoration: none;font-size: 30px;cursor: pointer;width: 90%;}");
+            client.println(".switch{background-color: red;border: none;color: white;padding: 16px 40px;text-decoration: none;font-size: 30px;cursor: pointer;width: 90%;}");
+            client.println("</style></head>");
+            client.println("<body><h1>Car Controller</h1><div class=\"buttondiv\">");
+            client.println("<p></p><a href=\"/F\"><button class=\"button\">↑</button></a><p></p>");
+            client.println("<a href=\"/L\"><button class=\"button\">←</button></a>");
+            client.println("<a href=\"/S\"><button class=\"switch\">■</button></a>");
+            client.println("<a href=\"/R\"><button class=\"button\">→</button></a>");
+            client.println("<p></p><a href=\"/B\"><button class=\"button\">↓</button></a><p></p>");
+            client.println("</div></body></html>");
 
             // The HTTP response ends with another blank line
             client.println();
