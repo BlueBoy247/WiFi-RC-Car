@@ -25,8 +25,8 @@
 
 ### 程式庫
 * ESP32Servo
-    > 版本：1.1.2
-    > [官方文件](https://madhephaestus.github.io/ESP32Servo/)
+    > 版本：1.1.2<br>
+    > [官方文件](https://madhephaestus.github.io/ESP32Servo/)<br>
     > [GitHub Repo](https://github.com/madhephaestus/ESP32Servo)
 
 ## 參考資料
