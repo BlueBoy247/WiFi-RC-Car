@@ -1,5 +1,5 @@
 #include <WiFi.h>
-#include <Servo.h>
+#include <ESP32Servo.h>
 
 // AP information
 const char* ssid = "醬炒鴨肉🦆"; // Custom SSID
@@ -19,8 +19,8 @@ int motor2Pin1 = 18;
 int motor2Pin2 = 19;
 // Servo
 Servo servoTurn;
-int servoPin = 25;
-int servoPos = 0;
+int servoPin = 5;
+int servoPos = 90;
 
 String header; // Variable to store the HTTP request
 String state = "Stop"; // Variable to store the current car state
@@ -95,8 +95,8 @@ void loop(){
               state = "Forward";
               digitalWrite(motor1Pin1, HIGH);
               digitalWrite(motor1Pin2, LOW);
-              digitalWrite(motor2Pin1, HIGH);
-              digitalWrite(motor2Pin2, LOW);
+              digitalWrite(motor2Pin1, LOW);
+              digitalWrite(motor2Pin2, HIGH);
               redirect(client);
             }
             else if(header.indexOf("GET /B") >= 0){
@@ -104,25 +104,35 @@ void loop(){
               state = "Backwards";
               digitalWrite(motor1Pin1, LOW);
               digitalWrite(motor1Pin2, HIGH);
-              digitalWrite(motor2Pin1, LOW);
-              digitalWrite(motor2Pin2, HIGH);
+              digitalWrite(motor2Pin1, HIGH);
+              digitalWrite(motor2Pin2, LOW);
               redirect(client);
             }
             else if(header.indexOf("GET /L") >= 0){
               Serial.println("Turn Left");
               state = "Left";
-              for(int i = 0; i < 15; i++) { 
-                servoTurn.write(--servoPos); 
-                delay(10); 
+              for(int i = 0; i < 15; i++) {
+                if(servoPos>=0){
+                  servoTurn.write(--servoPos);
+                  delay(10);
+                }
+                else{
+                  break;
+                }
               }
               redirect(client);
             }
             else if(header.indexOf("GET /R") >= 0){
               Serial.println("Turn Right");
               state = "Right";
-              for(int i = 0; i < 15; i++) { 
-                servoTurn.write(++servoPos); 
-                delay(10); 
+              for(int i = 0; i < 15; i++) {
+                if(servoPos<=180){
+                  servoTurn.write(++servoPos); 
+                  delay(10); 
+                }
+                else{
+                  break;
+                }
               }
               redirect(client);
             }
