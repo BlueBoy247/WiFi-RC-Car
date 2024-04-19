@@ -21,7 +21,6 @@
 
 ### 檔案
 * `car.ino`：ESP32程式
-* `controller.html`：車子遙控網頁介面
 
 ### 程式庫
 * ESP32Servo
@@ -32,3 +31,6 @@
 ## 參考資料
 * [ESP32 with DC Motor and L298N Motor Driver – Control Speed and Direction](https://randomnerdtutorials.com/esp32-dc-motor-l298n-motor-driver-control-speed-direction/)
 * [DIY RC Street Racing Car: One Week Classroom Project](https://www.thingiverse.com/thing:2653508)
+
+## 相關連結
+* [車子遙控網頁介面](https://blueboy247.github.io/WiFi-RC-Car/)
